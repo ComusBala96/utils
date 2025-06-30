@@ -1,0 +1,13 @@
+{
+    "name": "@orian/utils",
+    "description": "All static assets are defined here.",
+    "version": "1.0.0",
+    "main": "utils.js",
+    "keywords": [],
+    "author": {
+        "name": "OrianSoft",
+        "email": "info@oriansoft.com"
+    },
+    "license": "MIT",
+    "dependencies": {}
+}
