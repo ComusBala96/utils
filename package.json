@@ -1,13 +1,41 @@
 {
-    "name": "@orian/utils",
-    "description": "All static assets are defined here.",
+    "name": "@oriansoft/utils",
     "version": "1.0.0",
+    "publishConfig": {
+        "access": "public"
+    },
+    "type": "module",
     "main": "utils.js",
-    "keywords": [],
+    "homepage": "https://github.com/ComusBala96/utils.git",
+    "description": "A npm package of utils for oriansoft.",
+    "keywords": [
+        "oriansoft",
+        "npm",
+        "@oriansoft",
+        "utils"
+    ],
     "author": {
         "name": "OrianSoft",
         "email": "info@oriansoft.com"
     },
     "license": "MIT",
-    "dependencies": {}
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ComusBala96/utils.git"
+    },
+    "dependencies": {
+        "highcharts": "^12.2.0",
+        "select2": "^4.1.0-rc.0",
+        "xlsx": "^0.18.5",
+        "moment": "^2.30.1",
+        "jodit": "^4.6.2",
+        "summernote": "^0.9.1",
+        "swiper": "^11.2.6"
+    },
+    "devDependencies": {
+        "jquery": "^3.7.1",
+        "jquery-confirm": "^3.3.4",
+        "jquery-datetimepicker": "^2.5.21",
+        "jquery-validation": "^1.21.0"
+    }
 }

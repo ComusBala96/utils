@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2';
-import { G, domain_url, local } from '@orian/utils';
+import { G, domain_url, local } from '@oriansoft/utils';
 export function noServer() {
     $.confirm({
         title: '<span style="font-size: 16px;color: #ff0101;"> <i class="fa fa-exclamation-circle"></i> ' + G.mgs.errors.server_not_found + ' </span> <hr> <span style="font-size: 13px;color: #ff0101;"> Check your internet connection or try reload the page </span>',
