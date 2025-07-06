@@ -12,6 +12,7 @@
         "oriansoft",
         "npm",
         "@oriansoft",
+        "@oriansoft/utils",
         "utils"
     ],
     "author": {
