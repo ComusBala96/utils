@@ -1,9 +1,7 @@
 import Highcharts from 'highcharts';
 import 'highcharts/modules/data.js';
-// import 'highcharts/modules/drilldown.js';
 import 'highcharts/modules/exporting.js';
 import 'highcharts/modules/offline-exporting.js';
-// import 'highcharts/modules/export-data.js';
 import 'highcharts/modules/accessibility.js';
 export function barCharts(op = {}) {
     const { element = '', type = '', title = '', subtitle = '', xAxisTitle = '',
