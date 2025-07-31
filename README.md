@@ -3,19 +3,19 @@
 ## Installation
 
 ```npm
-npm i @oriansoft/utils
+npm i @orians/utils
 ```
 
 ## Or
 
 ```yarn
-yarn add @oriansoft/utils
+yarn add @orians/utils
 ```
 
 ## Uses
 
 ```js
-import { ajaxRequest } from '@oriansoft/utils';
+import { ajaxRequest } from '@orians/utils';
 ```
 
 ## Credits
