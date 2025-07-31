@@ -1,7 +1,114 @@
 import { app_locale, csrf_token, defaultDtSize, domain_url, local } from '../utils';
-import '../plugins/dataTable/js/jquery.dataTables.min.js';
-import '../plugins/dataTable/js/dataTables.bootstrap5.min.js';
-import '../plugins/dataTable/js/dataTables.checkboxes.min.js';
+import 'datatables.net-dt';
+import 'datatables.net-buttons-dt';
+import 'datatables.net-buttons/js/buttons.html5.mjs';
+import 'datatables.net-buttons/js/buttons.print.mjs';
+import 'datatables.net-responsive-dt';
+import 'datatables.net-searchbuilder-dt';
+import 'datatables.net-searchpanes-dt';
+import 'jquery-datatables-checkboxes';
+
+export function makeAjaxDataTable(table, op = {}) {
+    let f = {};
+    let s = [];
+    f.glob = (op.glob == undefined) ? false : op.glob;
+    f.searching = (op.searching == undefined) ? true : op.searching;
+    f.ordering = (op.ordering == undefined) ? false : op.ordering;
+    f.paging = (op.paging == undefined) ? true : op.paging;
+    f.info = (op.info == undefined) ? true : op.info;
+    f.pageLength = (op.pageLength === undefined) ? defaultDtSize : op.pageLength;
+    f.responsive = (op.responsive == undefined) ? true : op.responsive;
+    f.bLengthChange = (op.bLengthChange == undefined) ? true : op.bLengthChange;
+    f.stateSave = (op.stateSave == undefined) ? false : op.stateSave;
+    f.cache = (op.cache == undefined) ? false : op.cache;
+    f.url = op.url || '';
+    f.columns = op.columns || [];
+    f.body = op.body || {};
+    f.pagingType = 'simple_numbers',
+    f.language = {
+        url: domain_url + 'statics/locale/' + app_locale + '.json',
+        paginate: {
+            next: '<i class="fa-solid fa-angle-right"></i>',
+            previous: '<i class="fa-solid fa-angle-left"></i>'
+        }
+    };
+    if (op.select != undefined) {
+        if (op.select) {
+            s = [{
+                targets: 0,
+                checkboxes: {
+                    'selectRow': true
+                },
+                render: function (data, type, row, meta) {
+                    if (row?.can_select == 'no') {
+                        return '';
+                    }
+                    return '<input type="checkbox" class="dt-checkboxes">';
+                }
+            }];
+        }
+    }
+    f.selected = op.selected || [];
+    let post_data = { _token: csrf_token, lang: app_locale };
+    for (let key in f.body) {
+        post_data[key] = f.body[key];
+    }
+    if ($('#' + table).length > 0) {
+        let dt = $('#' + table).DataTable({
+            paging: f.paging,
+            searching: f.searching,
+            searchDelay: 500,
+            serverSide: true,
+            'bStateSave': true,
+            ordering: f.ordering,
+            info: f.info,
+            responsive: f.responsive,
+            bLengthChange: f.bLengthChange,
+            stateSave: f.stateSave,
+            cache: f.cache,
+            language: f.language,
+            pageLength: f.pageLength,
+            columnDefs: s,
+            processing: '<span class=\'fa-stack fa-lg\'>\n\
+                        <i class=\'fa fa-spinner fa-spin fa-stack-2x fa-fw\'></i>\n\
+                        </span>&nbsp;&nbsp;&nbsp;&nbsp;Processing ...',
+            lengthMenu: [
+                [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 100000, 200000, 300000],
+                [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 100000, 200000, 300000]
+            ],
+            ajax: {
+                type: 'POST',
+                url: domain_url + f.url,
+                data: post_data,
+                dataSrc: function (data) {
+                    op = { ...op, data: data, dataSrc: data.data };
+                    if (local) {
+                        console.log(data.data);
+                    }
+                    return data.data;
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            },
+            columns: f.columns,
+            select: {
+                style: 'multi'
+            },
+            order: [
+                [1, 'DESC']
+            ],
+            'fnDrawCallback': function (oSettings) {
+                let api = this.api();
+                if (typeof window[table] === 'function') {
+                    window[table](table, api, op);
+                }
+            }
+        });
+        selectAction(table, dt, op);
+    }
+
+}
 export function makeDataTable(table, op = {}) {
     let f = {};
     let s = [];
@@ -95,107 +202,6 @@ export function makeDataTable(table, op = {}) {
         });
         selectAction(table, dt);
     }
-}
-export function makeAjaxDataTable(table, op = {}) {
-    let f = {};
-    let s = [];
-    f.glob = (op.glob == undefined) ? false : op.glob;
-    f.searching = (op.searching == undefined) ? true : op.searching;
-    f.ordering = (op.ordering == undefined) ? false : op.ordering;
-    f.paging = (op.paging == undefined) ? true : op.paging;
-    f.info = (op.info == undefined) ? true : op.info;
-    f.pageLength = (op.pageLength === undefined) ? defaultDtSize : op.pageLength;
-    f.responsive = (op.responsive == undefined) ? true : op.responsive;
-    f.bLengthChange = (op.bLengthChange == undefined) ? true : op.bLengthChange;
-    f.stateSave = (op.stateSave == undefined) ? false : op.stateSave;
-    f.cache = (op.cache == undefined) ? false : op.cache;
-    f.url = op.url || '';
-    f.columns = op.columns || [];
-    f.body = op.body || {};
-    f.pagingType = 'simple_numbers',
-    f.language = {
-        url: domain_url + 'statics/locale/' + app_locale + '.json',
-        paginate: {
-            next: '<i class="fa-solid fa-angle-right"></i>',
-            previous: '<i class="fa-solid fa-angle-left"></i>'
-        }
-    };
-    if (op.select != undefined) {
-        if (op.select) {
-            s = [{
-                targets: 0,
-                checkboxes: {
-                    'selectRow': true
-                },
-                render: function (data, type, row, meta) {
-                    if (row?.can_select == 'no') {
-                        return '';
-                    }
-                    return '<input type="checkbox" class="dt-checkboxes">';
-                }
-            }];
-        }
-    }
-    f.selected = op.selected || [];
-    let post_data = { _token: csrf_token, lang: app_locale };
-    for (let key in f.body) {
-        post_data[key] = f.body[key];
-    }
-    if ($('#' + table).length > 0) {
-        let dt = $('#' + table).DataTable({
-            paging: f.paging,
-            searching: f.searching,
-            searchDelay: 500,
-            serverSide: true,
-            'bStateSave': true,
-            ordering: f.ordering,
-            info: f.info,
-            responsive: f.responsive,
-            bLengthChange: f.bLengthChange,
-            stateSave: f.stateSave,
-            cache: f.cache,
-            language: f.language,
-            pageLength: f.pageLength,
-            columnDefs: s,
-            processing: '<span class=\'fa-stack fa-lg\'>\n\
-                        <i class=\'fa fa-spinner fa-spin fa-stack-2x fa-fw\'></i>\n\
-                        </span>&nbsp;&nbsp;&nbsp;&nbsp;Processing ...',
-            lengthMenu: [
-                [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 100000, 200000, 300000],
-                [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 100000, 200000, 300000]
-            ],
-            ajax: {
-                type: 'POST',
-                url: domain_url + f.url,
-                data: post_data,
-                dataSrc: function (data) {
-                    op = { ...op, data: data, dataSrc: data.data };
-                    if (local) {
-                        console.log(data.data);
-                    }
-                    return data.data;
-                },
-                error: function (response) {
-                    console.log(response);
-                }
-            },
-            columns: f.columns,
-            select: {
-                style: 'multi'
-            },
-            order: [
-                [0, 'DESC']
-            ],
-            'fnDrawCallback': function (oSettings) {
-                let api = this.api();
-                if (typeof window[table] === 'function') {
-                    window[table](table, api, op);
-                }
-            }
-        });
-        selectAction(table, dt, op);
-    }
-
 }
 export function selectAction(table, dt, op) {
 
