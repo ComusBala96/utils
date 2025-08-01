@@ -1,12 +1,12 @@
-import { app_locale, csrf_token, defaultDtSize, domain_url, local } from '../utils';
-import 'datatables.net-dt';
+import { app_locale, csrf_token, defaultDtSize, domain_url, enToBnNumber, local } from '../utils';
+import DataTable from 'datatables.net-dt';
 import 'datatables.net-buttons-dt';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
 import 'datatables.net-buttons/js/buttons.print.mjs';
 import 'datatables.net-responsive-dt';
 import 'datatables.net-searchbuilder-dt';
 import 'datatables.net-searchpanes-dt';
-import 'jquery-datatables-checkboxes';
+import 'datatables.net-select-dt';
 
 export function makeAjaxDataTable(table, op = {}) {
     let f = {};
@@ -24,7 +24,8 @@ export function makeAjaxDataTable(table, op = {}) {
     f.url = op.url || '';
     f.columns = op.columns || [];
     f.body = op.body || {};
-    f.pagingType = 'simple_numbers',
+    f.disabled = (op.disabled == undefined) ? [] : op.disabled;
+    f.pagingType = 'simple_numbers';
     f.language = {
         url: domain_url + 'statics/locale/' + app_locale + '.json',
         paginate: {
@@ -35,16 +36,9 @@ export function makeAjaxDataTable(table, op = {}) {
     if (op.select != undefined) {
         if (op.select) {
             s = [{
+                orderable: false,
+                render: DataTable.render.select(),
                 targets: 0,
-                checkboxes: {
-                    'selectRow': true
-                },
-                render: function (data, type, row, meta) {
-                    if (row?.can_select == 'no') {
-                        return '';
-                    }
-                    return '<input type="checkbox" class="dt-checkboxes">';
-                }
             }];
         }
     }
@@ -93,21 +87,32 @@ export function makeAjaxDataTable(table, op = {}) {
             },
             columns: f.columns,
             select: {
-                style: 'multi'
+                style: 'os',
+                selector: 'td:first-child',
             },
             order: [
                 [1, 'DESC']
             ],
-            'fnDrawCallback': function (oSettings) {
+            drawCallback: function (oSettings) {
+                if (app_locale === 'bn') {
+                    setTimeout(() => {
+                        $('.dt-info').text(enToBnNumber($('.dt-info').text()));
+                        if ($('.dt-paging-button').length > 0) {
+                            $('.dt-paging-button').each(function () {
+                                if (/^\d+$/.test($(this).text().trim())) {
+                                    $(this).html(enToBnNumber($(this).text().trim()));
+                                }
+                            });
+                        }
+                    }, 10);
+                }
                 let api = this.api();
                 if (typeof window[table] === 'function') {
                     window[table](table, api, op);
                 }
             }
         });
-        selectAction(table, dt, op);
     }
-
 }
 export function makeDataTable(table, op = {}) {
     let f = {};
@@ -123,7 +128,7 @@ export function makeDataTable(table, op = {}) {
     f.pageLength = (op.pageLength === undefined) ? defaultDtSize : op.pageLength;
     f.cache = (op.cache == undefined) ? false : op.cache;
     f.disabled = (op.disabled == undefined) ? [] : op.disabled;
-    f.pagingType = 'simple_numbers',
+    f.pagingType = 'simple_numbers';
     f.language = {
         url: domain_url + 'statics/locale/' + app_locale + '.json',
         paginate: {
@@ -172,7 +177,17 @@ export function makeDataTable(table, op = {}) {
                 [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 100000, 200000, 300000],
                 [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 100000, 200000, 300000]
             ],
-            'fnDrawCallback': function (settings) {
+            drawCallback: function (settings) {
+                setTimeout(() => {
+                    $('.dt-info').text(enToBnNumber($('.dt-info').text()));
+                    if ($('.dt-paging-button').length > 0) {
+                        $('.dt-paging-button').each(function () {
+                            if (/^\d+$/.test($(this).text().trim())) {
+                                $(this).html(enToBnNumber($(this).text().trim()));
+                            }
+                        });
+                    }
+                }, 10);
                 let api = this.api();
                 if (typeof window[table] === 'function') {
                     let tr = $('#' + table + ' thead tr');
@@ -200,48 +215,9 @@ export function makeDataTable(table, op = {}) {
                 }
             }
         });
-        selectAction(table, dt);
     }
 }
-export function selectAction(table, dt, op) {
 
-    $('#' + table + ' tbody').on('click', 'input[type="checkbox"]', function (e) {
-        let $row = $(this).closest('tr');
-        if (this.checked) {
-            $row.addClass('selected');
-        } else {
-            $row.removeClass('selected');
-        }
-        showSelected(dt, op);
-        e.stopPropagation();
-    });
-    $('#' + table + ' thead', dt.table().container()).on('click', 'input[type="checkbox"]', function (e) {
-        if (this.checked) {
-            let cb = $('#' + table + ' tbody input[type="checkbox"]');
-            cb.prop('checked', true);
-            cb.parent().parent().addClass('selected');
-        } else {
-            let cb = $('#' + table + ' tbody input[type="checkbox"]');
-            cb.prop('checked', false);
-            cb.parent().parent().removeClass('selected');
-        }
-        showSelected(dt, op);
-        e.stopPropagation();
-    });
-}
-export function showSelected(dt, op = {}) {
-    let count = dt.rows('.selected').data().length;
-    if (count == '0') {
-        $('#show_selected').html('');
-        $('#show_selected_base').css({ marginLeft: '-500px' });
-    } else {
-        $('#show_selected_base').css({ marginLeft: 0 });
-        $('#show_selected').html('Selected: ' + count);
-    }
-    if (op?.onSelectRows) {
-        op?.onSelectRows(dt, op);
-    }
-}
 // export function makeAjaxDataTable(table, op = {}) {
 //     if (local) {
 //         console.log(op);

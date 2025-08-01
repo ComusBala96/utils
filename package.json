@@ -1,6 +1,6 @@
 {
     "name": "@orians/utils",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "publishConfig": {
         "access": "public"
     },
@@ -30,7 +30,7 @@
         "datatables.net-responsive-dt": "^3.0.5",
         "datatables.net-searchbuilder-dt": "^1.8.3",
         "datatables.net-searchpanes-dt": "^2.3.4",
-        "jquery-datatables-checkboxes": "^1.3.0",
+        "datatables.net-select-dt": "^3.0.1",
         "highcharts": "^12.2.0",
         "jodit": "^4.6.2",
         "moment": "^2.30.1",
