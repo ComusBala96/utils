@@ -1,6 +1,7 @@
-import moment from 'moment/moment';
+import moment from 'moment';
 import { ajaxRequest } from '../utils';
-import '../plugins/datetimepicker/js/jquery.datetimepicker.full.min.js';
+import 'jquery-datetimepicker';
+import 'jquery-datetimepicker/build/jquery.datetimepicker.min.css';
 export function pageAction(op = {}) {
     $('.viewAction').unbind('click');
     $('.viewAction').on('click', function () {
@@ -185,4 +186,10 @@ export function enToBnNumber(input) {
         '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
     };
     return input.toString().split('').map(char => enToBn[char] || char).join('');
+}
+
+export function Clock() {
+    setInterval(() => {
+        $('.clock').text(moment().format('MMMM Do, YYYY, h:mm:ss A'));
+    }, 1000);
 }

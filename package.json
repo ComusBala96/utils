@@ -1,6 +1,6 @@
 {
     "name": "@orians/utils",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "publishConfig": {
         "access": "public"
     },
@@ -39,6 +39,7 @@
         "summernote": "^0.9.1",
         "sweetalert2": "^11.15.3",
         "swiper": "^11.2.6",
+        "jquery-datetimepicker": "^2.5.21",
         "xlsx": "^0.18.5"
     },
     "devDependencies": {

@@ -37,7 +37,12 @@ export function makeAjaxDataTable(table, op = {}) {
         if (op.select) {
             s = [{
                 orderable: false,
-                render: DataTable.render.select(),
+                render: function (data, type, row, meta) {
+                    if (row?.select == 'no') {
+                        return '';
+                    }
+                    return DataTable.render.select().call(this, data, type, row, meta);
+                },
                 targets: 0,
             }];
         }
