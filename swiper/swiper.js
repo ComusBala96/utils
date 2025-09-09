@@ -37,14 +37,14 @@ export function swiper(op = {}) {
                     mousewheel: {
                         enabled: false,
                     },
-                    grabCursor: true,
+                    grabCursor: false,
                 },
                 1024: {
                     slidesPerView: breakpoints[i].lg,
                     mousewheel: {
                         enabled: false,
                     },
-                    grabCursor: true,
+                    grabCursor: false,
                 },
             },
             modules: [Navigation, Autoplay, Pagination],

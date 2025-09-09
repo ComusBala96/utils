@@ -23,7 +23,8 @@ export function ajax(op = {}, callBack) {
         config.contentType = 'application/json; charset=utf-8';
     }
     if (globLoader) {
-        $('#theGlobalLoader').addClass('activeGlobalLoader').css({ display: 'block' });
+        // $('#theGlobalLoader').addClass('activeGlobalLoader').css({ display: 'block' });
+        $('#theGlobalLoader').show();
     }
     $('.error_view').html('');
     $.ajax(config)
@@ -39,7 +40,8 @@ export function ajax(op = {}, callBack) {
                 console.log(req);
             }
             if (globLoader) {
-                $('#theGlobalLoader').removeClass('activeGlobalLoader').css({ display: 'none' });
+                // $('#theGlobalLoader').removeClass('activeGlobalLoader').css({ display: 'none' });
+                $('#theGlobalLoader').hide();
             }
             if (xhr.readyState == 0) {
                 noServer();
