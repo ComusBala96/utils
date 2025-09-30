@@ -1,6 +1,8 @@
-import fs from 'fs';
+import fs from 'fs'
+import path from 'path'
 
-export function getFileDir(src=''){
-    const files = fs.readdirSync(src, { withFileTypes: true });
-    return files.filter(dir => dir.isDirectory()).map(dir => dir.name);
+export function getFiles(dir, ext) {
+    return fs.readdirSync(dir)
+        .filter(file => file.endsWith(ext))
+        .map(file => path.join(dir, file).replace(/^.*resources[\\/]/, 'resources/'))
 }
