@@ -15,3 +15,4 @@ export * from './modal/modal';
 export * from './charts/highCharts';
 export * from './swiper/swiper';
 export * from './jodit/jodit';
+export * from './functions/getFileDir';
