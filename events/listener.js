@@ -13,3 +13,34 @@ export function changeColor(op = {}) {
         });
     });
 }
+
+export function initLazyImages() {
+    const images = document.querySelectorAll('img.lazy-img');
+    if (!('IntersectionObserver' in window)) {
+        images.forEach(img => {
+            if (img.dataset.src) {
+                img.src = img.dataset.src;
+            }
+        });
+        return;
+    }
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const img = entry.target;
+            const realSrc = img.dataset.src;
+            if (!realSrc) return;
+            const tempImg = new Image();
+            tempImg.src = realSrc;
+            tempImg.onload = () => {
+                img.src = realSrc;
+                img.classList.add('loaded');
+            };
+            obs.unobserve(img);
+        });
+    }, {
+        rootMargin: '100px',
+        threshold: 0.1,
+    });
+    images.forEach(img => observer.observe(img));
+}
