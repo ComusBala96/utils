@@ -6,7 +6,7 @@ export const domain_url = import.meta.env.VITE_APP_URL;
 export const csrf_token = $('meta[name="_token"]').attr('content');
 export const app_locale = $('meta[name="app_locale"]').attr('content');
 export const local = import.meta.env.VITE_APP_LOCAL_ENV == 'local' ? true : false;
-export const defaultDtSize = $('#dt_size').val() ?? 10;
+export const defaultDtSize = window.dt_size ?? 10;
 
 export const G = {
     ed: {
@@ -118,10 +118,10 @@ export const G = {
             });
         });
     },
-    mgs: JSON.parse(document.getElementById('lang').value),
-    digits: JSON.parse(document.getElementById('digits').value),
-    attributes: JSON.parse(document.getElementById('attributes').value),
-    pageLang: $('#pageLang').length > 0 ? JSON.parse($('#pageLang').val()) : null,
+    mgs: window.lang ?? {},
+    digits: window.digits ?? {},
+    attributes: window.attributes ?? '',
+    pageLang: window.pageLang ?? {},
     lang: function (op = {}) {
         let ob = {};
         let lang = this.mgs;
