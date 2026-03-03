@@ -14,33 +14,55 @@ export function changeColor(op = {}) {
     });
 }
 
-export function initLazyImages() {
-    const images = document.querySelectorAll('img.lazy-img');
+export function initLazyImages(root = document) {
+    const images = root.querySelectorAll('img.lazy-img[data-src]');
+
+    // Fallback
     if (!('IntersectionObserver' in window)) {
         images.forEach(img => {
-            if (img.dataset.src) {
-                img.src = img.dataset.src;
-            }
+            img.src = img.dataset.src;
+            img.classList.add('loaded');
         });
         return;
     }
-    const observer = new IntersectionObserver((entries, obs) => {
+
+    // Create namespace once
+    if (!window.__lazyObserver) {
+        window.__lazyObserver = null;
+    }
+
+    // Disconnect old observer
+    if (window.__lazyObserver) {
+        window.__lazyObserver.disconnect();
+    }
+
+    window.__lazyObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (!entry.isIntersecting) return;
+
             const img = entry.target;
-            const realSrc = img.dataset.src;
-            if (!realSrc) return;
-            const tempImg = new Image();
-            tempImg.src = realSrc;
-            tempImg.onload = () => {
-                img.src = realSrc;
+            const src = img.dataset.src;
+
+            if (!src || img.dataset.loaded) {
+                observer.unobserve(img);
+                return;
+            }
+
+            const temp = new Image();
+            temp.src = src;
+
+            temp.onload = () => {
+                img.src = src;
+                img.dataset.loaded = 'true';
                 img.classList.add('loaded');
             };
-            obs.unobserve(img);
+
+            observer.unobserve(img);
         });
     }, {
-        rootMargin: '100px',
-        threshold: 0.1,
+        rootMargin: '150px',
+        threshold: 0.01
     });
-    images.forEach(img => observer.observe(img));
+
+    images.forEach(img => window.__lazyObserver.observe(img));
 }
