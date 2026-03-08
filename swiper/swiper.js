@@ -4,19 +4,22 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 export function swiper(op = {}) {
-    const { elements = [], directions = [], slidesPerViews = [], breakpoints = [], loops = [], autoPlay = [], navigation = [], pagination = [] } = op;
+    const { elements = [], directions = [], slidesPerViews = [],
+        spaceBetween = 10, breakpoints = [], loops = [], autoPlay = [],
+        navigation = [], pagination = [], freeMode = false, grabCursor = false,
+        mousewheel = { enabled: false, } } = op;
     elements.forEach((element, i) => {
         new Swiper('.' + element, {
             direction: directions[i],
             slidesPerView: slidesPerViews[i],
-            spaceBetween: 10,
+            spaceBetween: spaceBetween,
             loop: loops[i],
             autoplay: autoPlay[i],
             navigation: navigation[i],
             pagination: pagination[i],
-            mousewheel: {
-                enabled: false,
-            },
+            freeMode: freeMode,
+            grabCursor: grabCursor,
+            mousewheel: mousewheel,
             breakpoints: {
                 496: {
                     slidesPerView: breakpoints[i].xs,

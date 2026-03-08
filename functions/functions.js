@@ -114,7 +114,7 @@ export function dynamicDom(op) {
     var { clickId = '', domId = '', cloneId = '', addRemoveClass = '', labelClass = [], inputClass = [], errorClass = [], } = op;
     $('#' + clickId).on('click', function () {
         var html = $('#' + domId).html();
-        var d = $(html).find('.' + addRemoveClass).html('<button type="button" class="deleteField mr-6 rounded-sm bg-body-blue px-2 py-1"><i class="fa fa-minus text-white"></i></button>').parent().parent().html();
+        var d = $(html).find('.' + addRemoveClass).html('<button type="button" class="deleteField mr-6 rounded-sm bg-body-dark-blue px-2 py-1"><i class="fa fa-minus text-white"></i></button>').parent().parent().html();
         $('#' + cloneId).append('<div class="">' + d + '</div>');
         if (labelClass.length > 0) {
             for (let i = 0; i < labelClass.length; i++) {
