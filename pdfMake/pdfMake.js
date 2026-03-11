@@ -1,118 +1,148 @@
 import { ajaxRequest, domain_url, local } from '../utils';
 import { html_to_pdf_make } from './html_to_pdf_make';
-import pdfMake from 'pdfmake/build/pdfmake';
-// import { vfs } from './vfs_fonts';
-// Set up fonts
+
+let pdfMakeInstance = null;
+
+/* ---------------------------
+   Load pdfMake lazily
+----------------------------*/
+async function getPdfMake() {
+
+    if (pdfMakeInstance) return pdfMakeInstance;
+
+    const pdfMakeModule = await import('pdfmake/build/pdfmake');
+    pdfMakeInstance = pdfMakeModule.default || pdfMakeModule;
+
+    /* Default fonts */
+    pdfMakeInstance.fonts = {
+        Roboto: {
+            normal: `${domain_url}statics/fonts/english/RobotoRegular.ttf`,
+            bold: `${domain_url}statics/fonts/english/RobotoBold.ttf`,
+            italics: `${domain_url}statics/fonts/english/RobotoItalic.ttf`,
+            bolditalics: `${domain_url}statics/fonts/english/RobotoBoldItalic.ttf`
+        },
+        SolaimanLipi: {
+            normal: `${domain_url}statics/fonts/bengali/SolaimanLipi.ttf`,
+            bold: `${domain_url}statics/fonts/bengali/SolaimanLipi-Bold.ttf`,
+            italics: `${domain_url}statics/fonts/bengali/SolaimanLipi-Italic.ttf`,
+            bolditalics: `${domain_url}statics/fonts/bengali/SolaimanLipi.ttf`
+        }
+    };
+
+    /* Table layouts */
+    pdfMakeInstance.tableLayouts = {
+        allDashBorders: {
+            hLineStyle: () => ({ dash: { length: 3, space: 5 } }),
+            vLineStyle: () => ({ dash: { length: 3, space: 5 } })
+        },
+
+        admitCardBorder: {
+            hLineWidth: () => 2,
+            vLineWidth: () => 2,
+            hLineColor: () => '#252161',
+            vLineColor: () => '#252161'
+        },
+
+        allBorders: {
+            hLineWidth: () => 1,
+            vLineWidth: () => 1,
+            hLineColor: () => 'black',
+            paddingLeft: () => 5,
+            paddingRight: () => 5
+        },
+
+        horizontalBorders: {
+            hLineWidth: () => 1,
+            vLineWidth: () => 0,
+            hLineColor: () => '#d1d1d1',
+            paddingLeft: () => 8,
+            paddingRight: () => 8
+        }
+    };
+
+    return pdfMakeInstance;
+}
 
 
-// pdfMake.fonts = {
-//     Roboto: {
-//         normal: 'RobotoRegular.ttf',
-//         bold: 'RobotoBold.ttf',
-//         italics: 'RobotoItalic.ttf',
-//         bolditalics: 'RobotoBoldItalic.ttf',
-//     },
-//     SolaimanLipi: {
-//         normal: 'SolaimanLipi.ttf',
-//         bold: 'SolaimanLipi-Bold.ttf',
-//         italics: 'SolaimanLipi-Italic.ttf',
-//         bolditalics: 'SolaimanLipi.ttf',
-//     },
-//     Kalpurush: {
-//         normal: 'Kalpurush.woff',
-//         bold: 'Kalpurush.woff2',
-//         italics: 'Kalpurush.woff',
-//         bolditalics: 'Kalpurush.woff2',
-//     },
-// };
-pdfMake.fonts = {
-    Roboto: {
-        normal: domain_url + 'statics/fonts/english/RobotoRegular.ttf',
-        bold: domain_url + 'statics/fonts/english/RobotoBold.ttf',
-        italics: domain_url + 'statics/fonts/english/RobotoItalic.ttf',
-        bolditalics: domain_url + 'statics/fonts/english/RobotoBoldItalic.ttf',
-    },
-    SolaimanLipi: {
-        normal: domain_url + 'statics/fonts/bengali/SolaimanLipi.ttf',
-        bold: domain_url + 'statics/fonts/bengali/SolaimanLipi-Bold.ttf',
-        italics: domain_url + 'statics/fonts/bengali/SolaimanLipi-Italic.ttf',
-        bolditalics: domain_url + 'statics/fonts/bengali/SolaimanLipi.ttf',
-    }
-},
-// Set up table layouts
-pdfMake.tableLayouts = {
-    allDashBorders: {
-        hLineStyle: () => ({ dash: { length: 3, space: 5 } }),
-        vLineStyle: () => ({ dash: { length: 3, space: 5 } }),
-    },
-    admitCardBorder: {
-        hLineWidth: () => 2,
-        vLineWidth: () => 2,
-        hLineColor: () => '#252161',
-        vLineColor: () => '#252161',
-    },
-    allBorders: {
-        hLineWidth: () => 1,
-        vLineWidth: () => 1,
-        hLineColor: () => 'black',
-        paddingLeft: () => 5,
-        paddingRight: () => 5,
-    },
-    horizontalBorders: {
-        hLineWidth: () => 1,
-        vLineWidth: () => 0,
-        hLineColor: () => '#d1d1d1',
-        paddingLeft: () => 8,
-        paddingRight: () => 8,
-    }
-};
+/* ---------------------------
+   Add Custom Fonts
+----------------------------*/
+function addCustomFonts(pdfMake, fonts = []) {
 
-// pdfMake.vfs = vfs;
+    if (!Array.isArray(fonts)) return;
 
-
-// Function to dynamically add fonts
-function addCustomFonts(pdfMakeInstance, fonts = []) {
     fonts.forEach(font => {
-        pdfMakeInstance.fonts[font.name] = {
+
+        if (!font?.name) return;
+
+        pdfMake.fonts[font.name] = {
             normal: font.n,
-            bold: font.n,
-            italics: font.i,
-            bolditalics: font.bi,
+            bold: font.b ?? font.n,
+            italics: font.i ?? font.n,
+            bolditalics: font.bi ?? font.n
         };
+
     });
+
 }
 
-// Function to dynamically add table layouts
-function addCustomTableLayouts(pdfMakeInstance, layouts = []) {
+
+/* ---------------------------
+   Add Table Layouts
+----------------------------*/
+function addCustomTableLayouts(pdfMake, layouts = []) {
+
+    if (!Array.isArray(layouts)) return;
+
     layouts.forEach(layout => {
-        pdfMakeInstance.tableLayouts[layout.name] = layout.value;
+
+        if (!layout?.name || !layout?.value) return;
+
+        pdfMake.tableLayouts[layout.name] = layout.value;
+
     });
+
 }
 
-// Function to generate and download the PDF
-export function MakePdf(op = {}) {
+
+/* ---------------------------
+   Generate PDF
+----------------------------*/
+export async function MakePdf(op = {}) {
+
+    const {
+        file_name = 'file_name',
+        id = 'pdf',
+        script,
+        body = {},
+        pdfFonts = [],
+        tableLayouts = []
+    } = op;
+
     try {
-        const { file_name = 'file_name', id = 'pdf', script, body = {}, pdfFonts = [], tableLayouts = [] } = op;
 
-        // Merge document definition with default style
-        let docDefinition = Object.assign({ defaultStyle: { font: 'SolaimanLipi' } }, html_to_pdf_make(op));
+        const pdfMake = await getPdfMake();
 
-        if (local){
-            console.log(docDefinition);
-        } 
+        const docDefinition = {
+            defaultStyle: { font: 'SolaimanLipi' },
+            ...html_to_pdf_make(op)
+        };
 
-        // Add custom fonts and table layouts if provided
+        if (local) {
+            console.log('PDF Definition', docDefinition);
+        }
+
         addCustomFonts(pdfMake, pdfFonts);
         addCustomTableLayouts(pdfMake, tableLayouts);
 
-        // Show loader
         $('#theDownloadLoader').show();
 
-        // Generate and download PDF
-        pdfMake.createPdf(docDefinition).download(`${file_name}.pdf`, function () {
+        pdfMake.createPdf(docDefinition).download(`${file_name}.pdf`, () => {
+
             $('#theDownloadLoader').hide();
 
             if (script) {
+
                 ajaxRequest({
                     element: id,
                     script,
@@ -121,24 +151,45 @@ export function MakePdf(op = {}) {
                     type: 'request',
                     afterSuccess: { type: 'inflate_response_data' }
                 });
+
             }
+
         });
+
     } catch (error) {
-        console.error('Error generating PDF:', error);
+
+        console.error('PDF generation failed:', error);
         $('#theDownloadLoader').hide();
+
     }
+
 }
 
-// Function to attach event listener for PDF download
-export function downloadPdf(op = {}) {
-    let btn = op?.btn ?? 'pdfDownload';
 
-    $(`#${btn}`).off('click').on('click', function () {
+/* ---------------------------
+   Bind Button
+----------------------------*/
+export function downloadPdf(op = {}) {
+
+    const btn = op?.btn ?? 'pdfDownload';
+
+    $(`#${btn}`).off('click').on('click', async function () {
+
         try {
-            let newOp = Object.assign({}, op, JSON.parse($(this).attr('data-pdf-op') || '{"no":"no"}'));
-            MakePdf(newOp);
+
+            const attr = $(this).attr('data-pdf-op');
+            const extra = attr ? JSON.parse(attr) : {};
+
+            const newOp = { ...op, ...extra };
+
+            await MakePdf(newOp);
+
         } catch (error) {
-            console.error('Error initializing PDF download:', error);
+
+            console.error('PDF initialization error:', error);
+
         }
+
     });
+
 }
