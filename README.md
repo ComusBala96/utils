@@ -15,7 +15,7 @@ yarn add @orians/utils
 ## Uses
 
 ```js
-import { ajaxRequest } from '@orians/utils';
+import { ajax } from '@orians/utils';
 ```
 
 ## Credits
