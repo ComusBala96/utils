@@ -68,13 +68,13 @@
         "summernote": "^0.9.1",
         "sweetalert2": "^11.15.3",
         "swiper": "^11.2.6",
-        "select2": "^4.1.0-rc.0",
+        "select2": "^4.0.13",
         "jquery-datetimepicker": "^2.5.21",
         "xlsx": "^0.18.5"
     },
     "devDependencies": {
         "@types/select2": "^4.0.63",
-        "jquery": "^4.0.0",
+        "jquery": "^3.7.1",
         "jquery-confirm": "^3.3.4",
         "jquery-datetimepicker": "^2.5.21",
         "jquery-validation": "^1.21.0",
